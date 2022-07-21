@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "87435b1d-1bb6-463d-8733-85586018e863",
+		"name": "Rabint user",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Permanent Token request",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "resumptionToken",
+						"value": "8f9672745fcfc5abc34a1822512630c3"
+					},
+					{
+						"key": "X-Access-Api-Key",
+						"value": "SaVn0OvlZDuL6fYpimlJtfEUiBiTAk6pIfEGu42u"
+					},
+					{
+						"key": "Cookie",
+						"value": "_csrf-rabintApp=2d55186e4484b2cea1b7a8053eb51be24825aa8aa71a01d9fbf8ce2407ed1252a%3A2%3A%7Bi%3A0%3Bs%3A15%3A%22_csrf-rabintApp%22%3Bi%3A1%3Bs%3A32%3A%220aTpdM4pxOVNXFZQgbHu51o2ucdIOu9h%22%3B%7D"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "resumptionToken",
+							"value": "\"089315cdcf3fc974ffefe359a3a655be\"",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "pardis.um.ac.ir/backend-api/get-user?uid=3",
+					"host": [
+						"pardis",
+						"um",
+						"ac",
+						"ir"
+					],
+					"path": [
+						"backend-api",
+						"get-user"
+					],
+					"query": [
+						{
+							"key": "uid",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "expirable Token request",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "resumptionToken",
+						"value": "8f9672745fcfc5abc34a1822512630c3"
+					},
+					{
+						"key": "X-Access-Api-Key",
+						"value": "SaVn0OvlZDuL6fYpimlJtfEUiBiTAk6pIfEGu42u"
+					},
+					{
+						"key": "Cookie",
+						"value": "_csrf-rabintApp=2d55186e4484b2cea1b7a8053eb51be24825aa8aa71a01d9fbf8ce2407ed1252a%3A2%3A%7Bi%3A0%3Bs%3A15%3A%22_csrf-rabintApp%22%3Bi%3A1%3Bs%3A32%3A%220aTpdM4pxOVNXFZQgbHu51o2ucdIOu9h%22%3B%7D"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "resumptionToken",
+							"value": "\"089315cdcf3fc974ffefe359a3a655be\"",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "pardis.um.ac.ir/backend-api/get-user?uid=3",
+					"host": [
+						"pardis",
+						"um",
+						"ac",
+						"ir"
+					],
+					"path": [
+						"backend-api",
+						"get-user"
+					],
+					"query": [
+						{
+							"key": "uid",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "1-request login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"identity\":\"09151038085\"}"
+				},
+				"url": {
+					"raw": "{{ApiUrl}}/user/api/checkuser",
+					"host": [
+						"{{ApiUrl}}"
+					],
+					"path": [
+						"user",
+						"api",
+						"checkuser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2-login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"identity\":\"09151038085\",\"password\":\"qweqwe\"}"
+				},
+				"url": {
+					"raw": "{{ApiUrl}}/user/api/login",
+					"host": [
+						"{{ApiUrl}}"
+					],
+					"path": [
+						"user",
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3-request-activation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"identity\":\"09154526352\"}"
+				},
+				"url": {
+					"raw": "{{ApiUrl}}/user/api/send-activation",
+					"host": [
+						"{{ApiUrl}}"
+					],
+					"path": [
+						"user",
+						"api",
+						"send-activation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4-check-activation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"identity\":\"09154526352\",\"token\":\"4564\"}"
+				},
+				"url": {
+					"raw": "{{ApiUrl}}/user/api/check-activation",
+					"host": [
+						"{{ApiUrl}}"
+					],
+					"path": [
+						"user",
+						"api",
+						"check-activation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5-register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"identity\":\"09154526352\",\"token\":\"4564\"}"
+				},
+				"url": {
+					"raw": "{{ApiUrl}}/user/api/check-activation",
+					"host": [
+						"{{ApiUrl}}"
+					],
+					"path": [
+						"user",
+						"api",
+						"check-activation"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "temp_access_token",
+			"value": "SaVn0OvlZDuL6fYpimlJtfEUiBiTAk6pIfEGu42u"
+		},
+		{
+			"key": "permanent_access_token",
+			"value": "SaVn0OvlZDuL6fYpimlJtfEUiBiTAk6pIfEGu42u"
+		},
+		{
+			"key": "ApiUrl",
+			"value": "https://jbhe.ir/admin/app/web"
+		}
+	]
+}

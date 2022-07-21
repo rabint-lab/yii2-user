@@ -1,0 +1,95 @@
+<?php
+
+
+use rabint\user\models\User;
+use rabint\rbac\Migration;
+
+class m150625_215624_normal_rbac_migration extends Migration
+{
+    public function up()
+    {
+
+        /**
+         * add roles
+         */
+        $user = $this->auth->createRole(User::ROLE_USER);
+        $user->description = \Yii::t('rabint', 'کاربر عادی');
+        //$user->data = [];
+        $this->auth->add($user);
+
+
+        $manager = $this->auth->createRole(User::ROLE_MANAGER);
+        $this->auth->add($manager);
+        $this->auth->addChild($manager, $user);
+
+        $admin = $this->auth->createRole(User::ROLE_ADMINISTRATOR);
+        $this->auth->add($admin);
+        $this->auth->addChild($admin, $manager);
+        $this->auth->addChild($admin, $user);
+
+        $this->auth->assign($admin, 1);
+        $this->auth->assign($manager, 2);
+        $this->auth->assign($user, 3);
+
+
+        /**
+         * add premissions
+         */
+        $managerRole = $this->auth->getRole(User::ROLE_MANAGER);
+        $administratorRole = $this->auth->getRole(User::ROLE_ADMINISTRATOR);
+
+        $loginToBackend = $this->auth->createPermission('loginToBackend');
+        $this->auth->add($loginToBackend);
+
+        $this->auth->addChild($managerRole, $loginToBackend);
+        $this->auth->addChild($administratorRole, $loginToBackend);
+
+
+        /**
+         * add rules
+         */
+
+        $rule = new OwnModelRule();
+        $this->auth->add($rule);
+
+        $role = $this->auth->getRole(User::ROLE_USER);
+
+        $editOwnModelPermission = $this->auth->createPermission('editOwnModel');
+        $editOwnModelPermission->ruleName = $rule->name;
+
+        $this->auth->add($editOwnModelPermission);
+        $this->auth->addChild($role, $editOwnModelPermission);
+    }
+
+    public function down()
+    {
+        /**
+         * remove roles
+         */
+        $this->auth->remove($this->auth->getRole(User::ROLE_ADMINISTRATOR));
+        $this->auth->remove($this->auth->getRole(User::ROLE_MANAGER));
+        $this->auth->remove($this->auth->getRole(User::ROLE_USER));
+
+        $permission = $this->auth->getPermission('editOwnModel');
+        $rule = $this->auth->getRule('ownModelRule');
+
+        $this->auth->remove($permission);
+        $this->auth->remove($rule);
+
+
+        /**
+         * remove premissions
+         */
+        $this->auth->remove($this->auth->getPermission('loginToBackend'));
+
+
+        /**
+         * remove rules
+         */
+        $permission = $this->auth->getPermission('editOwnModel');
+        $rule = $this->auth->getRule('ownModelRule');
+
+        $this->auth->remove($permission);
+        $this->auth->remove($rule);
+    }
+}
