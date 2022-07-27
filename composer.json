@@ -3,7 +3,7 @@
     "description": "An extension for managing ads for yii2.",
     "type": "yii2-extension",
     "homepage": "http://rabint.ir",
-    "license": "Exclusive",
+    "license": "MIT",
     "authors": [{
             "name": "rabint",
             "email": "info@rabint.ir",
