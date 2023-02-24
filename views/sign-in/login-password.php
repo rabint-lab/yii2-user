@@ -69,10 +69,10 @@ $mergeRegLogin = \rabint\user\Module::getConfig('mergeRegisterAndLogin');
                 ?>
             </div>
         <?php endif; ?>
-        <div class="form-group center">
+        <div class="form-group center p-2">
             <?php echo Html::submitButton(
                 $mergeRegLogin ? Yii::t('rabint', 'ورود / ثبت نام') : Yii::t('rabint', 'ورود'),
-                ['class' => 'btn btn-primary login-button btn-lg pl-5 pr-5', 'name' => 'login-button']) ?>
+                ['class' => 'btn btn-primary login-button pl-5 pr-5', 'name' => 'login-button']) ?>
         </div>
         <div class="form-group center" style="color:#999;margin:1em 0">
             <p>

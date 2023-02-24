@@ -1,7 +1,7 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
+use yii\bootstrap4\Html;
+use yii\bootstrap4\ActiveForm;
 use yii\helpers\Url;
 
 /* @var $title
@@ -21,7 +21,7 @@ if (rabint\helpers\user::isGuest()) {
                 <?php
                 $form = ActiveForm::begin([
                             'id' => 'login-form',
-                            'action' => \yii\helpers\Url::to(['/users/sign-in/login']),
+                            'action' => \yii\helpers\Url::to(['/user/sign-in/login']),
                 ]);
                 ?>
                 <?= $form->field($model, 'identity') ?>
@@ -29,16 +29,26 @@ if (rabint\helpers\user::isGuest()) {
                 <?= $form->field($model, 'rememberMe')->checkbox() ?>
                 <div style="color:#999;margin:1em 0">
                     <?php
-                    echo Yii::t('rabint', 'اگر رمز خود را فراموش کرده اید  <a href="{link}">اینجا کلیک نمایید</a>', [
-                        'link' => yii\helpers\Url::to(['/users/sign-in/request-password-reset'])
-                    ])
+                    $mergeRegLogin = \rabint\user\Module::getConfig('mergeRegisterAndLogin');
+                    $linkOptions = (Yii::$app->request->isAjax) ? ['role' => "modal-remote"] : [];
+//                    echo Yii::t('rabint', 'اگر رمز خود را فراموش کرده اید  <a href="{link}">اینجا کلیک نمایید</a>', [
+//                        'link' => yii\helpers\Url::to(['/users/sign-in/request-password-reset'])
+//                    ])
                     ?>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center center">
                     <?= Html::submitButton(Yii::t('rabint', 'ورود'), ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
                 </div>
-                <div class="form-group">
-                    <?php echo Html::a(Yii::t('rabint', 'عضویت در سایت'), ['/users/sign-in/signup']) ?>
+                <div class="form-group text-center center mt-1">
+                    <?php
+                    if (!$mergeRegLogin && \rabint\user\Module::getConfig('enableActivation')) {
+                        echo Html::a(Yii::t('rabint', 'ثبت نام'), ['/user/sign-in/activation', 'identity' => '', 'redirect' => $model->redirect], $linkOptions);
+                        echo ' | ';
+                    }
+                    ?>
+                    <?php
+                    echo Html::a(Yii::t('rabint', 'بازیابی رمز'), ['/user/sign-in/activation', 'identity' => $model->identity, 'redirect' => $model->redirect], $linkOptions);
+                    ?>
                 </div>
                 <?php /*
                   <h2><?php echo Yii::t('rabint', 'ورود با')  ?>:</h2>
@@ -71,7 +81,7 @@ if (rabint\helpers\user::isGuest()) {
                 <?= \Yii::t('rabint', 'wellcome {username}', ['username' => rabint\helpers\user::name()]); ?>
             </div>
             <div class="col-sm-12">
-                <?= rabint\user\widget\UserMenu::widget(); ?>
+                <?php //= rabint\user\widget\UserMenu::widget(); ?>
             </div>
         </div>
     </div>

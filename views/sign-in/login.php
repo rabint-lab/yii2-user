@@ -23,10 +23,10 @@ $linkOptions = (Yii::$app->request->isAjax) ? ['role' => "modal-remote"] : [];
             <?php echo $form->field($model, 'password', ['inputOptions' => ['autocomplete' => 'off', 'class' => "form-control ltrCenter"]])->passwordInput() ?>
         </div>
 
-        <div class="form-group center">
+        <div class="form-group center p-2">
             <?php echo Html::submitButton(
                 Yii::t('rabint', 'ادامه') . ' <i class="form_loader fas fa-sync-alt fa-spin" style="display: none"></i>',
-                ['class' => 'btn btn-primary login-button btn-lg pl-5 pr-5', 'name' => 'login-button']) ?>
+                ['class' => 'btn btn-primary login-button  pl-5 pr-5', 'name' => 'login-button']) ?>
 
         </div>
         <?php ActiveForm::end(); ?>

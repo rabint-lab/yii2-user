@@ -55,12 +55,12 @@ if ($act = \rabint\user\Module::getConfig('inner_dashboard_action')) {
                 continue;
             }
             foreach ($menu['items'] as &$item) {
-                $item['linkOptions'] = ['class'=>'btn btn-success btn-sm'];
+                $item['linkOptions'] = ['class'=>'btn btn-sm btn-success rounded-pill ml-1','style'=>'height:20px !important'];
             }
             ?>
             <div class="col-sm-12 col-lg-6 CardDashboard">
 
-                <div class="card">
+                <div class="card shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title"><?= $menu['icon'] ?? '<i class="far fa-circle"></i>'; ?><?= $menu['label'] ?? ''; ?></h5>
                         <h6 class="card-subtitle mb-2 text-muted"><?= $menu['hit'] ?? ""; ?></h6>
@@ -79,12 +79,12 @@ if ($act = \rabint\user\Module::getConfig('inner_dashboard_action')) {
         <?php } ?>
         <?php if (!empty($userMenu)) {
             foreach ($userMenu['items'] as &$item) {
-                $item['linkOptions'] = ['class'=>'btn btn-success btn-sm'];
+                $item['linkOptions'] = ['class'=>'btn btn-sm btn-success rounded-pill ml-1','style'=>'height:20px !important'];
             }
             ?>
             <div class="col-sm-12 col-md-12 CardDashboard2">
 
-                <div class="card  bg-light special_card">
+                <div class="card shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title"><?= $userMenu['icon'] ?? '<i class="far fa-circle"></i>'; ?><?= $userMenu['label'] ?? ''; ?></h5>
                         <h6 class="card-subtitle mb-2 text-muted"><?= $userMenu['hit'] ?? ""; ?></h6>

@@ -8,10 +8,12 @@
 
 namespace rabint\user\widget;
 
+use yii\base\Widget;
+
 /**
  * Class login
  */
-class UserWidget extends \yii\bootstrap\Widget {
+class UserWidget extends Widget {
 
     var $style = 'default';
     var $redirect = \rabint\helpers\uri::RD_REFERRER; //remember,dashboard, url...
@@ -20,7 +22,7 @@ class UserWidget extends \yii\bootstrap\Widget {
 
     public function init() {
         if (empty($this->model)) {
-            $this->model = new \rabint\user\models\LoginForm();
+            $this->model = new \rabint\user\models\form\LoginForm();
         }
         if ($this->title === null) {
             $this->title = \Yii::t('rabint', 'ورود کاربران');
