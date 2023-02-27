@@ -128,9 +128,13 @@ $isModalAjax = Yii::$app->request->isAjax;
             <table class="table table-striped table-bordered detail-others-view">
                 <tbody>
             <?php
+            $filld = false;
             $json = json_decode($model->userProfile->others ?: '[]', 1);
             $other_fileds = config('SERVICE.user.other_profile_fields',[]);
+            $other_fileds = $other_fileds();
+//            var_dump($other_fileds);
             foreach ($json as $k=>$v){
+                $filld = true;
                 $k = strtolower($k);
                 $title = $other_fileds[$k]??$k;
                 echo "<tr><th>$title</th><td>$v</td></tr>";
@@ -138,7 +142,11 @@ $isModalAjax = Yii::$app->request->isAjax;
             ?>
                 </tbody>
             </table>
-
+            <?php
+            if(!$filld){
+                echo '<i>'.Yii::t('app', 'اطلاعاتی برای این کاربر ثبت نشده است').'</i>';
+            }
+            ?>
         </div>
     </div>
 </div>
