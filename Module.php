@@ -6,6 +6,7 @@ use rabint\cheatsheet\Time;
 use rabint\helpers\str;
 use rabint\helpers\user;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 class Module extends \yii\base\Module
 {
@@ -85,6 +86,13 @@ class Module extends \yii\base\Module
                      'visible' => Yii::$app->user->can('contributor'),
                      'icon' => '<i class="fas fa-image"></i>',
                  ],*/
+                [
+                    'label' => \Yii::t('app', 'تغییر رمز'),
+                    //'url' => ['/user/default/profile'],
+                    'url' => ['/user/default/change-password'],
+                    'visible' => !Yii::$app->user->isGuest,
+                    'icon' => '<i class="fas fa-password"></i>',
+                ],
                 [
                     'label' => \Yii::t('app', 'ویرایش اطلاعات کاربری'),
                     //'url' => ['/user/default/profile'],
