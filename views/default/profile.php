@@ -69,9 +69,9 @@ $profileModel = $model->getModel('profile');
     <div class="row">
         <?php
         $json = json_decode($profileModel->others ?: '[]', 1);
-        $other_fileds = config('SERVICE.user.other_profile_fields', []);
-        $other_fileds = $other_fileds();
-        foreach ($other_fileds as $k => $field) {
+        $other_fields = config('SERVICE.user.other_profile_fields', []);
+        $other_fields = $other_fields();
+        foreach ($other_fields as $k => $field) {
             echo '<div class="col-12 col-md-6">';
             echo $form->field($profileModel, $field['field'])->textInput();
             echo '</div>';
