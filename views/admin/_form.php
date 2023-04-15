@@ -6,7 +6,7 @@ use yii\bootstrap4\Html;
 
 /* @var $this yii\web\View */
 /* @var $model rabint\user\models\AdminUserForm */
-/* @var $form yii\bootstrap\ActiveForm */
+/* @var $form yii\bootstrap4\ActiveForm */
 /* @var $roles yii\rbac\Role[] */
 /* @var $permissions yii\rbac\Permission[] */
 ?>
