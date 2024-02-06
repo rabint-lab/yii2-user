@@ -102,6 +102,12 @@ class AdminRoleForm extends Model
             $perm =\Yii::$app->authManager->getPermission($addPerm);
             \Yii::$app->authManager->addChild($role,$perm);
         }
+
+        $userRole = \Yii::$app->authManager->getRole(User::ROLE_USER);
+        if (!\Yii::$app->authManager->hasChild($role, $userRole)) {
+            \Yii::$app->authManager->addChild($role,$userRole);
+        }
+        
         return true;
     }
 

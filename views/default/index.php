@@ -42,7 +42,12 @@ if ($act = \rabint\user\Module::getConfig('inner_dashboard_action')) {
                 continue;
             }
             if (method_exists($moduleClass, 'dashboardMenu')) {
-                $ModuleMenu[] = call_user_func([$moduleClass, 'dashboardMenu']);
+                $aMenu = call_user_func([$moduleClass, 'dashboardMenu']);
+                if(isset($aMenu['label'])){
+                    $ModuleMenu[] =$aMenu;
+                }else{
+                    $ModuleMenu = array_merge($ModuleMenu,$aMenu);
+                }
             }
         }
 
@@ -55,14 +60,14 @@ if ($act = \rabint\user\Module::getConfig('inner_dashboard_action')) {
                 continue;
             }
             foreach ($menu['items'] as &$item) {
-                $item['linkOptions'] = ['class'=>'btn btn-sm btn-success rounded-pill ml-1','style'=>'height:20px !important'];
+                $item['linkOptions'] = ['class'=>'card-link m-0 p-2 '];
             }
             ?>
-            <div class="col-sm-12 col-lg-6 CardDashboard">
+            <div class="col-sm-12 col-lg-6 CardDashboard ">
 
                 <div class="card shadow-lg">
                     <div class="card-body">
-                        <h5 class="card-title"><?= $menu['icon'] ?? '<i class="far fa-circle"></i>'; ?><?= $menu['label'] ?? ''; ?></h5>
+                        <h5 class="card-title"><?= $menu['icon'] ?? '<i class="far fa-circle"></i>'; ?> <?= $menu['label'] ?? ''; ?></h5>
                         <h6 class="card-subtitle mb-2 text-muted"><?= $menu['hit'] ?? ""; ?></h6>
                         <?php
                         echo Nav::widget([
@@ -70,7 +75,7 @@ if ($act = \rabint\user\Module::getConfig('inner_dashboard_action')) {
                             'items' => $menu['items'] ?? []
                         ]);
                         ?>
-                        <!-- <a href="#" class="card-link">Another link</a> -->
+
                     </div>
                 </div>
                 <div class="spacer"></div>
@@ -79,14 +84,14 @@ if ($act = \rabint\user\Module::getConfig('inner_dashboard_action')) {
         <?php } ?>
         <?php if (!empty($userMenu)) {
             foreach ($userMenu['items'] as &$item) {
-                $item['linkOptions'] = ['class'=>'btn btn-sm btn-success rounded-pill ml-1','style'=>'height:20px !important'];
+                $item['linkOptions'] = ['class'=>'card-link m-0 p-2'];
             }
             ?>
             <div class="col-sm-12 col-md-12 CardDashboard2">
 
                 <div class="card shadow-lg">
                     <div class="card-body">
-                        <h5 class="card-title"><?= $userMenu['icon'] ?? '<i class="far fa-circle"></i>'; ?><?= $userMenu['label'] ?? ''; ?></h5>
+                        <h5 class="card-title"><?= $userMenu['icon'] ?? '<i class="far fa-circle"></i>'; ?> <?= $userMenu['label'] ?? ''; ?></h5>
                         <h6 class="card-subtitle mb-2 text-muted"><?= $userMenu['hit'] ?? ""; ?></h6>
                         <?php
                         echo Nav::widget([

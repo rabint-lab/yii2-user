@@ -2,6 +2,7 @@
 
 namespace rabint\user\models;
 
+use app\modules\post\models\GroupMember;
 use rabint\user\models\User;
 use yii\base\Exception;
 use yii\base\Model;
@@ -22,6 +23,7 @@ class AdminUserForm extends Model
     public $confirm;
     public $status;
     public $roles;
+    public $groups;
     /**
      * profile
      */
@@ -95,6 +97,13 @@ class AdminUserForm extends Model
                     )
                 ]
             ],
+            [
+                ['groups'],
+                'each',
+                'rule' => [
+                    'integer'
+                ]
+            ],
             /* profiles */
             [['nickname', 'lastname', 'firstname'], 'string', 'max' => 255],
             [['locale'], 'string', 'max' => 5],
@@ -132,6 +141,7 @@ class AdminUserForm extends Model
             'brithdate' => Yii::t('rabint', 'تاریخ تولد'),
             'avatar_url' => Yii::t('rabint', 'تصویر کاربری'),
             'group' => Yii::t('rabint', 'سازمان'),
+            'groups' => Yii::t('rabint', 'گروه های این کاربر'),
         ];
     }
 
@@ -226,6 +236,14 @@ class AdminUserForm extends Model
                 $profile->gender = $this->gender;
 
                 $res = $profile->save(false);
+            }
+            if ($this->groups && is_array($this->groups)) {
+                foreach ($this->groups as $grp) {
+                    $gp = new GroupMember();
+                    $gp->group_id = $grp;
+                    $gp->user_id = $model->id;
+                    $gp->save(false);
+                }
             }
             $auth = Yii::$app->authManager;
             if ($this->roles && is_array($this->roles)) {
