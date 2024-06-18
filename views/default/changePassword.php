@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\bootstrap4\ActiveForm;
 
-$this->context->layout = '@themeLayouts/full';
+//$this->context->layout = '@themeLayouts/full';
 /* @var $this yii\web\View */
 /* @var $form yii\widgets\ActiveForm */
 /* @var $model \rabint\user\models\ResetPasswordForm */
