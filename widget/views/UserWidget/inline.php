@@ -56,7 +56,7 @@ if (rabint\helpers\user::isGuest()) {
             <div class="pull-right float-right">
                 <button class="headerUserMenuBtn" data-toggle="dropdown" type="button">
                     <span class="headerAvatar pull-right float-right" >
-                        <img src = "<?php echo Yii::$app->user->identity->userProfile->getAvatar(\yii\helpers\Url::home() . '/img/noAvatarTiny.png', 'tiny') ?>" class = "user-image">
+                        <img src = "<?php echo Yii::$app->user->identity->userProfile->getAvatar(\yii\helpers\Url::home(1) . '/img/noAvatarTiny.png', 'tiny') ?>" class = "user-image">
                     </span>
                     <span class="pull-right float-right" >
                         <?= \Yii::t('rabint', 'wellcome {username}', ['username' => rabint\helpers\user::name()]); ?>

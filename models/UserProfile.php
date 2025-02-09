@@ -236,7 +236,7 @@ class UserProfile extends ActiveRecord
     {
         if (empty($this->avatar_url)) {
             if (empty($default)) {
-                return $size == 'medium' ? \yii\helpers\Url::home() . '/img/noAvatarMedium.png' : \yii\helpers\Url::home() . '/img/noAvatarTiny.png';
+                return $size == 'medium' ? \yii\helpers\Url::home(1) . '/img/noAvatarMedium.png' : \yii\helpers\Url::home(1) . '/img/noAvatarTiny.png';
             }
             return $default;
         }
