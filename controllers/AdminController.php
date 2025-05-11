@@ -2,53 +2,55 @@
 
 namespace rabint\user\controllers;
 
-use Yii;
-use rabint\user\models\User;
+use backend\models\AccountForm;
 use rabint\user\models\AdminUserForm;
 use rabint\user\models\search\AdminUserSearch;
-use yii\helpers\ArrayHelper;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use backend\models\AccountForm;
-use Intervention\Image\ImageManagerStatic;
+use rabint\user\models\User;
 use trntv\filekit\actions\DeleteAction;
 use trntv\filekit\actions\UploadAction;
+use Yii;
+use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\imagine\Image;
 use yii\web\ForbiddenHttpException;
-use yii\helpers\Url;
+use yii\web\NotFoundHttpException;
 
 /**
  * UserController implements the CRUD actions for User model.
  */
-class AdminController extends \rabint\controllers\AdminController {
+class AdminController extends \rabint\controllers\AdminController
+{
 
-    public function behaviors() {
+    public function behaviors()
+    {
         $ret = parent::behaviors();
         return $ret + [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
-                ],
-            ],
-            'access' => [
-                'class' => \yii\filters\AccessControl::className(),
-                'rules' => [
-                        [
-                        'allow' => true,
-                        'roles' => ['administrator','support'],
+                'verbs' => [
+                    'class' => VerbFilter::className(),
+                    'actions' => [
+                        'delete' => ['post'],
                     ],
-                    [
-                        'allow' => true,
-                        'actions' => 'login-as'
-                    ]
-                // everything else is denied
                 ],
-            ],
-        ];
+                'access' => [
+                    'class' => \yii\filters\AccessControl::className(),
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['administrator', 'manager', 'viewUsers'],
+                        ],
+                        [
+                            'allow' => true,
+                            'actions' => ['login-as'],
+                            'roles' => ['administrator', 'loginAs'],
+                        ]
+                        // everything else is denied
+                    ],
+                ],
+            ];
     }
 
-    public function actions() {
+    public function actions()
+    {
         return [
 //            'avatar-upload' => [
 //                'class' => UploadAction::className(),
@@ -66,7 +68,8 @@ class AdminController extends \rabint\controllers\AdminController {
         ];
     }
 
-    public function actionProfile() {
+    public function actionProfile()
+    {
         $model = Yii::$app->user->identity->userProfile;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', Yii::t('rabint', 'Your profile has been successfully saved', [], $model->locale));
@@ -75,7 +78,8 @@ class AdminController extends \rabint\controllers\AdminController {
         return $this->render('profile', ['model' => $model]);
     }
 
-    public function actionAccount() {
+    public function actionAccount()
+    {
         $user = Yii::$app->user->identity;
         $model = new AccountForm();
         $model->username = $user->username;
@@ -97,26 +101,27 @@ class AdminController extends \rabint\controllers\AdminController {
      * Lists all User models.
      * @return mixed
      */
-    public function actionIndex() {
+    public function actionIndex()
+    {
         $searchModel = new AdminUserSearch();
-        if(!Yii::$app->user->can('viewUsers')){
-            throw new ForbiddenHttpException(yii::t('rabint','متاسفانه به این صفحه دسترسی ندارید.'));
+        if (!Yii::$app->user->can('viewUsers')) {
+            throw new ForbiddenHttpException(yii::t('rabint', 'متاسفانه به این صفحه دسترسی ندارید.'));
         }
-        
-        if(!Yii::$app->user->can('administrator') and !Yii::$app->user->can('manageَUsers')){
+
+        if (!Yii::$app->user->can('administrator') and !Yii::$app->user->can('manageَUsers')) {
             $groups = \app\modules\group\models\GroupUser::find()
-                    ->where(['user_id'=> Yii::$app->user->id])
-                    ->select('group_concat(group_id) grp ')
-                    ->asArray()
-                    ->all();
+                ->where(['user_id' => Yii::$app->user->id])
+                ->select('group_concat(group_id) grp ')
+                ->asArray()
+                ->all();
             $searchModel->group = $groups[0]['grp'];
         }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
-                    'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
         ]);
     }
 
@@ -125,14 +130,15 @@ class AdminController extends \rabint\controllers\AdminController {
      * @param integer $id
      * @return mixed
      */
-    public function actionView($id) {
-        if(!Yii::$app->user->can('viewUsers')){
-            throw new ForbiddenHttpException(yii::t('rabint','متاسفانه به این صفحه دسترسی ندارید.'));
+    public function actionView($id)
+    {
+        if (!Yii::$app->user->can('viewUsers')) {
+            throw new ForbiddenHttpException(yii::t('rabint', 'متاسفانه به این صفحه دسترسی ندارید.'));
         }
-        
+
         return $this->render('view', [
-                    'model' => $this->findModel($id),
-                    'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
+            'model' => $this->findModel($id),
+            'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
         ]);
     }
 
@@ -141,9 +147,10 @@ class AdminController extends \rabint\controllers\AdminController {
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate() {
-        if(!Yii::$app->user->can('createUsers')){
-            throw new ForbiddenHttpException(yii::t('rabint','متاسفانه به این صفحه دسترسی ندارید.'));
+    public function actionCreate()
+    {
+        if (!Yii::$app->user->can('createUsers')) {
+            throw new ForbiddenHttpException(yii::t('rabint', 'متاسفانه به این صفحه دسترسی ندارید.'));
         }
         $model = new AdminUserForm();
         $model->setScenario('create');
@@ -152,55 +159,57 @@ class AdminController extends \rabint\controllers\AdminController {
         }
 
         return $this->render('create', [
-                    'model' => $model,
-                    'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
+            'model' => $model,
+            'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
         ]);
     }
-    
+
     /**
      * Creates a new User model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreateUser() {
-        if(!Yii::$app->user->can('createUsers')){
-            throw new ForbiddenHttpException(yii::t('rabint','متاسفانه به این صفحه دسترسی ندارید.'));
+    public function actionCreateUser()
+    {
+        if (!Yii::$app->user->can('createUsers')) {
+            throw new ForbiddenHttpException(yii::t('rabint', 'متاسفانه به این صفحه دسترسی ندارید.'));
         }
         $model = new AdminUserForm();
         $sw = 1;
         $request = Yii::$app->request;
-        if($model->load(Yii::$app->request->post())){
+        if ($model->load(Yii::$app->request->post())) {
             $userExists = User::findByUsername($model->username);
-            if(!$userExists){
+            if (!$userExists) {
                 $model->setScenario('createUser'); # must be defined
                 if (!$model->save()) {
                     $sw = 0;
                 }
             }
-            if($sw){
+            if ($sw) {
                 $modelRelation = new \app\modules\user_group\models\UserGroupRelation();
-                $modelRelation->user_id = (!$userExists)?$model->id:$userExists->id;
+                $modelRelation->user_id = (!$userExists) ? $model->id : $userExists->id;
                 $modelRelation->grade_id = 1;
                 $modelRelation->group_id = $model->group;
-                if(!$modelRelation->save()){
+                if (!$modelRelation->save()) {
                     Yii::$app->session->setFlash('warning', \Yii::t('rabint', 'خطا در بخش دسترسی'));
                     return $this->redirect(['create-user']);
                 }
             }
         }
         return $this->render('create_user', [
-                    'model' => $model
+            'model' => $model
         ]);
     }
-    
-    public function actionValidateUser($username){
+
+    public function actionValidateUser($username)
+    {
         $count = User::findByUsername($username);
-        if(($count)){
+        if (($count)) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
-        
+
     }
 
     /**
@@ -208,14 +217,14 @@ class AdminController extends \rabint\controllers\AdminController {
      * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id) {
-        if(!Yii::$app->user->can('manageَUsers')){
-            throw new ForbiddenHttpException(yii::t('rabint','متاسفانه به این صفحه دسترسی ندارید.'));
+    public function actionUpdate($id)
+    {
+        if (!Yii::$app->user->can('manageَUsers')) {
+            throw new ForbiddenHttpException(yii::t('rabint', 'متاسفانه به این صفحه دسترسی ندارید.'));
         }
         $model = new AdminUserForm();
         $model->setModel($this->findModel($id));
-        if($id ==0)
-        {
+        if ($id == 0) {
             Yii::$app->session->setFlash(
                 'warning',
                 \Yii::t('rabint', 'کاربر گرامی!.')
@@ -236,9 +245,9 @@ class AdminController extends \rabint\controllers\AdminController {
         }
 
         return $this->render('update', [
-                    'user_id' => $id,
-                    'model' => $model,
-                    'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
+            'user_id' => $id,
+            'model' => $model,
+            'roles' => ArrayHelper::map(Yii::$app->authManager->getRoles(), 'name', 'description')
         ]);
     }
 
@@ -247,48 +256,49 @@ class AdminController extends \rabint\controllers\AdminController {
      * @param type $id
      * @return type
      */
-    public function actionUpdatePermissions($id) {
-        
+    public function actionUpdatePermissions($id)
+    {
+
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         $userRoles = Yii::$app->authManager->getRolesByUser($model->id);
         $userPerms = Yii::$app->authManager->getPermissionsByUser($model->id);
         $systemPerms = Yii::$app->authManager->getPermissions();
-        
-        $rolePerms= [];
+
+        $rolePerms = [];
         foreach ($userRoles as $role) {
-            foreach(Yii::$app->authManager->getPermissionsByRole($role->name) as $perm){
+            foreach (Yii::$app->authManager->getPermissionsByRole($role->name) as $perm) {
                 $rolePerms[$perm->name] = $perm->description;
             }
         }
-        
+
         $permsCanRemove = [];
         foreach ($userPerms as $perm) {
-            if(!array_key_exists($perm->name, $rolePerms))
-                 $permsCanRemove[$perm->name] = $perm->description;
+            if (!array_key_exists($perm->name, $rolePerms))
+                $permsCanRemove[$perm->name] = $perm->description;
         }
-        
+
         $permsCanAdd = [];
         foreach ($systemPerms as $perm) {
-            if(!array_key_exists($perm->name, $rolePerms))
-                 $permsCanAdd[$perm->name] = $perm->description;
+            if (!array_key_exists($perm->name, $rolePerms))
+                $permsCanAdd[$perm->name] = $perm->description;
         }
         asort($permsCanRemove);
         asort($permsCanAdd);
-        
-        if($request->isPost){
-            if($request->post('add_btn')!== null){
-                if(array_key_exists($request->post('add'),$permsCanAdd)){
+
+        if ($request->isPost) {
+            if ($request->post('add_btn') !== null) {
+                if (array_key_exists($request->post('add'), $permsCanAdd)) {
                     $permission = Yii::$app->authManager->getPermission($request->post('add'));
                     Yii::$app->authManager->assign($permission, $model->id);
-                    return $this->redirect(['update-permissions','id'=>$model->id]);
+                    return $this->redirect(['update-permissions', 'id' => $model->id]);
                 }
             }
-            if($request->post('remove_btn')!== null){
-                if(array_key_exists($request->post('remove'),$permsCanRemove)){
+            if ($request->post('remove_btn') !== null) {
+                if (array_key_exists($request->post('remove'), $permsCanRemove)) {
                     $permission = Yii::$app->authManager->getPermission($request->post('remove'));
                     Yii::$app->authManager->revoke($permission, $model->id);
-                    return $this->redirect(['update-permissions','id'=>$model->id]);
+                    return $this->redirect(['update-permissions', 'id' => $model->id]);
                 }
             }
         }
@@ -308,11 +318,12 @@ class AdminController extends \rabint\controllers\AdminController {
      * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id) {
-        if(!Yii::$app->user->can('manageَUsers')){
-            throw new ForbiddenHttpException(yii::t('rabint','متاسفانه به این صفحه دسترسی ندارید.'));
+    public function actionDelete($id)
+    {
+        if (!Yii::$app->user->can('manageَUsers')) {
+            throw new ForbiddenHttpException(yii::t('rabint', 'متاسفانه به این صفحه دسترسی ندارید.'));
         }
-        
+
         Yii::$app->authManager->revokeAll($id);
         $this->findModel($id)->delete();
 
@@ -326,7 +337,8 @@ class AdminController extends \rabint\controllers\AdminController {
      * @return User the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id) {
+    protected function findModel($id)
+    {
         if (($model = User::findOne($id)) !== null) {
             return $model;
         } else {
@@ -334,7 +346,8 @@ class AdminController extends \rabint\controllers\AdminController {
         }
     }
 
-    public function actionExport() {
+    public function actionExport()
+    {
         if (!\rabint\helpers\user::can("administrator")) {
             return $this->redirect(['index']);
         }
@@ -343,52 +356,52 @@ class AdminController extends \rabint\controllers\AdminController {
         echo \rabint\widgets\ExcelListView::widget([
             'dataProvider' => $dataProvider,
             'columns' => [
-                    ['class' => 'yii\grid\SerialColumn'],
-                    [
+                ['class' => 'yii\grid\SerialColumn'],
+                [
                     'attribute' => 'id',
                     'filterOptions' => ['style' => 'max-width:100px;'],
                     'format' => 'raw',
                 ],
-                    [
+                [
                     'attribute' => 'username',
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return $model->username;
                     },
                 ],
-                    [
+                [
                     'attribute' => 'email',
                 ],
-                    [
+                [
                     'attribute' => 'melli_code',
                     'label' => \Yii::t('rabint', 'کد ملی'),
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return $model->userProfile->melli_code;
                     },
                 ],
-                    [
+                [
                     'attribute' => 'realName',
                     'label' => \Yii::t('rabint', 'نام کاربر'),
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return $model->userProfile->firstname . ' ' . $model->userProfile->lastname;
                     },
                 ],
-                    [
+                [
                     'attribute' => 'displayName',
                     'label' => \Yii::t('rabint', 'نام نمایشی'),
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return $model->userProfile->nickname;
                     },
                 ],
-                    [
+                [
                     'attribute' => 'role',
                     'label' => \Yii::t('rabint', 'نقش کاربری'),
                     'class' => \rabint\components\grid\EnumColumn::className(),
                     'enum' => \yii\helpers\ArrayHelper::getColumn(User::globalRoles(), 'title'),
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return \rabint\helpers\user::roleTitle($model->id);
                     },
                 ],
-                    [
+                [
                     'attribute' => 'gender',
                     'label' => \Yii::t('rabint', 'جنسیت'),
                     'class' => \rabint\components\grid\EnumColumn::className(),
@@ -396,15 +409,15 @@ class AdminController extends \rabint\controllers\AdminController {
                         1 => Yii::t('rabint', 'مرد'),
                         2 => Yii::t('rabint', 'زن'),
                     ],
-                    'value' => function($model) {
+                    'value' => function ($model) {
                         return $model->userProfile->gender;
                     },
                 ],
-                    [
+                [
                     'class' => \rabint\components\grid\JDateColumn::className(),
                     'attribute' => 'created_at',
                 ],
-                    [
+                [
                     'class' => \rabint\components\grid\JDateColumn::className(),
                     'attribute' => 'logged_at',
                 ],
@@ -417,7 +430,7 @@ class AdminController extends \rabint\controllers\AdminController {
 //                    },
 //                    'visible' => class_exists('rabint\finance\models\FinanceWallet')
 //                ],
-                    [
+                [
                     'attribute' => 'status',
                     'class' => \rabint\components\grid\EnumColumn::className(),
                     'enum' => \yii\helpers\ArrayHelper::getColumn(User::statuses(), 'title'),
@@ -426,28 +439,29 @@ class AdminController extends \rabint\controllers\AdminController {
         ]);
     }
 
-    public function actionAjaxUserList($q = null, $id = null) {
+    public function actionAjaxUserList($q = null, $id = null)
+    {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $out = ['results' => ['id' => '', 'text' => '', 'usage' => '']];
         if (!is_null($q)) {
             $data = User::find()
-                    ->alias("t")
-                    ->select(new \yii\db\Expression('id, concat(t.username," - ",p.nickname)  AS text'))
-                    ->leftJoin('user_profile p', 't.id = p.user_id')
-                    ->where([
-                        'OR',
-                            ['like', 't.username', $q],
-                            ['like', 'p.nickname', $q],
-                    ])
+                ->alias("t")
+                ->select(new \yii\db\Expression('id, concat(t.username," - ",p.nickname)  AS text'))
+                ->leftJoin('user_profile p', 't.id = p.user_id')
+                ->where([
+                    'OR',
+                    ['like', 't.username', $q],
+                    ['like', 'p.nickname', $q],
+                ])
 //                    ->andWhere([">", 'is_official', 1])
-                    ->limit(20)
-                    ->asArray()
-                    ->all();
+                ->limit(20)
+                ->asArray()
+                ->all();
             $out['results'] = array_values($data);
         } elseif ($id > 0) {
             $out['results'] = ['id' => $id, 'text' => Tag::findOne($id)->title, 'usage' => ''];
         }
         return $out;
     }
-    
+
 }

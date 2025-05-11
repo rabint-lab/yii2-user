@@ -29,7 +29,7 @@ class AdminUserSearch extends User
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at', 'logged_at', 'gender', 'parent_id', 'group'], 'integer'],
+            [['id', 'status', 'created_at', 'updated_at', 'logged_at', 'gender', 'parent_id', 'group','level'], 'integer'],
             [['displayName', 'realName'], 'string'],
             [['role', 'username', 'auth_key', 'password_hash', 'email', 'melli_code', 'cell'], 'safe'],
         ];
@@ -71,6 +71,7 @@ class AdminUserSearch extends User
         $query->andFilterWhere([
             'u.id' => $this->id,
             'u.status' => $this->status,
+            'u.level' => $this->level,
             'u.created_at' => $this->created_at,
             'u.updated_at' => $this->updated_at,
             'u.logged_at' => $this->logged_at,

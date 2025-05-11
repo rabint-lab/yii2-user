@@ -15,13 +15,21 @@ use yii\bootstrap4\Html;
     <div class="row">
         <div class="col-sm-12">
             <?php $form = ActiveForm::begin(); ?>
+
             <div class="row">
                 <div class="col-sm-12 col-md-6">
-                    <?php echo $form->field($model, 'username') ?>
+                    <?php echo $form->field($model, 'cell')->hint(Yii::t('app', 'حتما با فرمت  09151234567 وارد نمایید.')); ?>
                 </div>
                 <div class="col-sm-12 col-md-6">
                     <?php echo $form->field($model, 'email')->input('email', ['autocomplete' => 'off']) ?>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <?php echo $form->field($model, 'username')->hint(Yii::t('app', 'جهت احراز هویت با عبارتی غیر از موبایل، می توانید این بخش را تکمیل نمایید.')) ?>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-sm-12 col-md-6">
                     <?php
                     echo $form->field($model, 'password')->passwordInput(['autocomplete' => 'off'])
@@ -33,6 +41,12 @@ use yii\bootstrap4\Html;
                 <div class="col-sm-12 col-md-6">
                     <?php echo $form->field($model, 'confirm')->passwordInput(['autocomplete' => 'off']) ?>
                 </div>
+                <div class="col-sm-12 col-md-6">
+                    <?php
+                    echo $form->field($model, 'aset_must_changed_password')->checkbox(); ?>
+                </div>
+            </div>
+            <div class="row">
 
                 <div class="col-sm-12 col-md-6">
                     <?= $form->field($model, 'roles')->checkboxList($roles, ['name' => 'AdminUserForm[roles][]', 'class' => 'adminCheckboxList']) ?>
@@ -51,14 +65,18 @@ use yii\bootstrap4\Html;
                     }
                     ?>
                 </div>
+            </div>
+
+            <div class="row">
+
+
                 <div class="col-sm-12 col-md-6">
                     <?php echo $form->field($model, 'status')->dropDownList(\yii\helpers\ArrayHelper::getColumn(User::statuses(), 'title')) ?>
                 </div>
                 <div class="col-sm-12 col-md-6">
-                    <label for=""> </label>
-                    <?php
-                    echo $form->field($model, 'aset_must_changed_password')->checkbox(); ?>
+                    <?php echo $form->field($model, 'level')->dropDownList(\yii\helpers\ArrayHelper::getColumn(\common\models\User::levels(), 'title')) ?>
                 </div>
+
 
             </div>
         </div>
@@ -74,10 +92,7 @@ use yii\bootstrap4\Html;
                 <div class="col-sm-12 col-md-6">
                     <?php echo $form->field($model, 'lastname') ?>
                 </div>
-                <div class="col-sm-12 col-md-6">
 
-                    <?php echo $form->field($model, 'cell') ?>
-                </div>
                 <div class="col-sm-12 col-md-6">
                     <?php echo \rabint\helpers\widget::datePickerBs4($form, $model, 'brithdate'); ?>
                 </div>

@@ -25,6 +25,7 @@ class m140703_123000_user extends Migration
             'password_hash' => $this->string()->notNull(),
             'oauth_client' => $this->string(),
             'oauth_client_user_id' => $this->string(),
+            'level' => $this->integer()->defaultValue(1),
             'email' => $this->string(),
             'mobile' => $this->bigInteger()->unsigned(),
             'status' => $this->smallInteger()->notNull()->defaultValue(User::STATUS_ACTIVE),

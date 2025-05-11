@@ -3,12 +3,11 @@
 namespace rabint\user\models;
 
 use app\modules\post\models\GroupMember;
-use rabint\user\models\User;
+use rabint\helpers\str;
+use Yii;
 use yii\base\Exception;
 use yii\base\Model;
-use Yii;
 use yii\helpers\ArrayHelper;
-use rabint\helpers\str;
 
 /**
  * Create user form
@@ -19,6 +18,7 @@ class AdminUserForm extends Model
     public $redirect = "";
     public $username;
     public $email;
+    public $level;
     public $password;
     public $confirm;
     public $status;
@@ -43,15 +43,27 @@ class AdminUserForm extends Model
     private $model;
 
     public $group;
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
+        $required = [];
+        if (\rabint\user\Module::baseAuthenticateOnEmail()) {
+            $required[] = 'email';
+            $required[] = 'username';
+        }
+        if (\rabint\user\Module::baseAuthenticateOnMobile()) {
+            $required[] = 'cell';
+        } else {
+            $required[] = 'username';
+        }
+
         return [
             ['redirect', 'safe'],
             ['username', 'filter', 'filter' => 'trim'],
-            ['username', 'required'],
+            [$required, 'required'],
             [
                 'username',
                 'unique',
@@ -68,6 +80,7 @@ class AdminUserForm extends Model
             [['username', 'email'], 'filter', 'filter' => '\yii\helpers\HtmlPurifier::process'],
             ['email', 'filter', 'filter' => 'trim'],
             ['email', 'email'],
+            ['level', 'integer'],
             [
                 'email',
                 'unique',
@@ -78,11 +91,11 @@ class AdminUserForm extends Model
                     }
                 }
             ],
-            ['password', 'required', 'on' => ['create','create_user']],
+            ['password', 'required', 'on' => ['create', 'create_user']],
             ['password', 'string', 'min' => 6],
             ['confirm', 'required', 'on' => 'create'],
             ['confirm', 'compare', 'compareAttribute' => 'password'],
-            [['status','group'], 'integer'],
+            [['status', 'group'], 'integer'],
             // [['is_official'], 'integer'],
             [['aset_max_upload_size'], 'integer', 'min' => 1, 'max' => 600],
             [['aset_must_changed_password'], 'integer', 'min' => 0, 'max' => 1],
@@ -107,7 +120,11 @@ class AdminUserForm extends Model
             /* profiles */
             [['nickname', 'lastname', 'firstname'], 'string', 'max' => 255],
             [['locale'], 'string', 'max' => 5],
-            [['cell'], 'string', 'max' => 13],
+            //[['cell'], 'string', 'max' => 13],
+            //support only iran cellphone number
+            ['cell', 'match', 'pattern' => '/^(?:\+98|0098|98|0)?9[0-9]{9}$/', 'message' => 'لطفاً یک شماره موبایل معتبر ایرانی وارد کنید.'],
+            //support all world country cellphone number
+            //['cell', 'match', 'pattern' => '/^\+?[1-9]\d{9,14}$/', 'message' => 'شماره موبایل وارد شده معتبر نیست.'],
             ['gender', 'integer'],
             [['avatar_url'], 'safe'],
             ['gender', 'in', 'range' => [NULL, UserProfile::GENDER_FEMALE, UserProfile::GENDER_MALE]],
@@ -123,19 +140,20 @@ class AdminUserForm extends Model
     {
 
         return [
-            'username' => Yii::t('rabint', 'نام کاربری یا تلفن همراه'),
+            'username' => Yii::t('rabint', 'نام کاربری'),
             'email' => Yii::t('rabint', 'Email'),
             'status' => Yii::t('rabint', 'Status'),
             'confirm' => Yii::t('rabint', 'تکرار رمز'),
             'password' => Yii::t('rabint', 'Password'),
             //  'is_official' => Yii::t('rabint', 'نوع پروفایل'),
             'aset_max_upload_size' => Yii::t('rabint', 'حجم مجاز آپلود(مگابایت)'),
-            'aset_must_changed_password' => Yii::t('rabint', 'تعویض رمز بعد از اولین ورود'),
+            'aset_must_changed_password' => Yii::t('rabint', 'تعویض رمز در اولین ورود'),
             'roles' => Yii::t('rabint', 'Roles'),
             'nickname' => Yii::t('rabint', 'نام نمایشی'),
             'firstname' => Yii::t('rabint', 'نام'),
             'lastname' => Yii::t('rabint', 'نام خانوادگی'),
             'locale' => Yii::t('rabint', 'زبان'),
+            'level' => Yii::t('rabint', 'سطح'),
             'cell' => Yii::t('rabint', 'تلفن همراه'),
             'gender' => Yii::t('rabint', 'جنسیت'),
             'brithdate' => Yii::t('rabint', 'تاریخ تولد'),
@@ -154,6 +172,7 @@ class AdminUserForm extends Model
         $this->username = $model->username;
         $this->email = $model->email;
         $this->status = $model->status;
+        $this->level = $model->level;
         $this->model = $model;
         //$this->is_official = $model->is_official;
         $this->aset_max_upload_size = $model->userProfile->aset_max_upload_size;
@@ -163,7 +182,7 @@ class AdminUserForm extends Model
         $this->lastname = $model->userProfile->lastname;
         $this->firstname = $model->userProfile->firstname;
         $this->locale = $model->userProfile->locale;
-        $this->cell = $model->userProfile->cell;
+        $this->cell = $model->mobile;
         $this->brithdate = $model->userProfile->brithdate;
         $this->gender = $model->userProfile->gender;
         $this->avatar_url = $model->userProfile->avatar_url;
@@ -188,25 +207,33 @@ class AdminUserForm extends Model
     }
 
 
-
     /**
      * Signs user up.
      * @return User|null the saved model or null if saving fails
      * @throws Exception
      */
-    public function getIsNewRecord(){
+    public function getIsNewRecord()
+    {
         return $this->getModel()->getIsNewRecord();
     }
+
     public function save()
     {
-        
+
         if ($this->validate()) {
             $model = $this->getModel();
             $isNewRecord = $model->getIsNewRecord();
             $model->scenario = 'adminEdit';
-            $model->username = $this->username;
+            $this->cell = str::formatCellphone($this->cell);
+            if (empty($this->username)) {
+                $model->username = $this->cell;
+            } else {
+                $model->username = $this->username;
+            }
             $model->email = $this->email;
             $model->status = $this->status;
+            $model->level = $this->level;
+            $model->mobile = $this->cell;
             // $model->is_official = $this->is_official;
             if ($this->password) {
                 $model->setPassword($this->password);

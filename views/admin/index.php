@@ -2,8 +2,8 @@
 
 use common\grid\EnumColumn;
 use rabint\user\models\User;
-use yii\helpers\Html;
 use rabint\widgets\GridView;
+use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $searchModel rabint\user\models\search\AdminUserSearch */
@@ -32,25 +32,25 @@ $this->params['breadcrumbs'][] = $this->title;
                         echo GridView::widget([
                             'dataProvider' => $dataProvider,
                             'filterModel' => $searchModel,
-                            'showAddBtn'=>false,
-                            'showRefreshBtn'=>false,
+                            'showAddBtn' => false,
+                            'showRefreshBtn' => false,
                             'pager' => [
                                 'firstPageLabel' => '««',
                                 'lastPageLabel' => '»»'
                             ],
                             'columns' => [
-                                    [
+                                [
                                     'attribute' => 'id',
                                     'filterOptions' => ['style' => 'max-width:100px;'],
                                     'format' => 'raw',
                                 ],
-                                    [
+                                [
                                     'attribute' => 'username',
-                                    'value' => function($model) {
+                                    'value' => function ($model) {
                                         return $model->username;
                                     },
                                 ],
-                                    [
+                                [
                                     'attribute' => 'email',
                                 ],
 //                                    [
@@ -60,36 +60,36 @@ $this->params['breadcrumbs'][] = $this->title;
 //                                        return $model->userProfile->melli_code;
 //                                    },
 //                                ],
-                                    [
+                                [
                                     'attribute' => 'realName',
                                     'label' => \Yii::t('rabint', 'نام واقعی'),
-                                    'value' => function($model) {
-                                        if(!isset($model->userProfile)){
+                                    'value' => function ($model) {
+                                        if (!isset($model->userProfile)) {
                                             return Yii::t('app', '(بدون پروفایل)');
                                         }
                                         return Html::decode($model->userProfile->firstname . ' ' . $model->userProfile->lastname);
                                     },
                                 ],
-                                    [
+                                [
                                     'attribute' => 'displayName',
                                     'label' => \Yii::t('rabint', 'نام نمایشی'),
-                                    'value' => function($model) {
-                                        if(!isset($model->userProfile)){
+                                    'value' => function ($model) {
+                                        if (!isset($model->userProfile)) {
                                             return Yii::t('app', '(بدون پروفایل)');
                                         }
                                         return $model->userProfile->nickname;
                                     },
                                 ],
-                                    [
+                                [
                                     'attribute' => 'role',
                                     'label' => \Yii::t('rabint', 'نقش کاربری'),
-                                    'class' =>\rabint\components\grid\EnumColumn::className(),
+                                    'class' => \rabint\components\grid\EnumColumn::className(),
                                     'enum' => $roles,
-                                    'value' => function($model) {
+                                    'value' => function ($model) {
                                         return rabint\helpers\user::roleTitle($model->id);
                                     },
                                 ],
-                                    [
+                                [
                                     'attribute' => 'gender',
                                     'label' => \Yii::t('rabint', 'جنسیت'),
                                     'class' => \rabint\components\grid\EnumColumn::className(),
@@ -97,18 +97,18 @@ $this->params['breadcrumbs'][] = $this->title;
                                         1 => Yii::t('rabint', 'مرد'),
                                         2 => Yii::t('rabint', 'زن'),
                                     ],
-                                    'value' => function($model) {
-                                        if(!isset($model->userProfile)){
+                                    'value' => function ($model) {
+                                        if (!isset($model->userProfile)) {
                                             return Yii::t('app', '(بدون پروفایل)');
                                         }
                                         return $model->userProfile->gender;
                                     },
                                 ],
-                                    [
+                                [
                                     'class' => \rabint\components\grid\JDateColumn::className(),
                                     'attribute' => 'created_at',
                                 ],
-                                    [
+                                [
                                     'class' => \rabint\components\grid\JDateColumn::className(),
                                     'attribute' => 'logged_at',
                                 ],
@@ -121,52 +121,57 @@ $this->params['breadcrumbs'][] = $this->title;
 //                                    },
 //                                    'visible' => class_exists('rabint\finance\models\FinanceWallet')
 //                                ],
-                                    [
+                                [
+                                    'attribute' => 'level',
+                                    'class' => \rabint\components\grid\EnumColumn::className(),
+                                    'enum' => \yii\helpers\ArrayHelper::getColumn(\common\models\User::levels(), 'title'),
+                                ],
+                                [
                                     'attribute' => 'status',
                                     'class' => \rabint\components\grid\EnumColumn::className(),
                                     'enum' => \yii\helpers\ArrayHelper::getColumn(User::statuses(), 'title'),
                                 ],
-                                    [
+                                [
                                     'class' => 'yii\grid\ActionColumn',
                                     'template' => '{view} {update} {delete} {organ} {loginAs} {permission}',
                                     'buttons' => [
                                         'loginAs' => function ($url, $model) {
 //                                            if($model->id == rabint\helpers\user::id() or !rabint\helpers\user::can('loginAs'))return;
 //                                            if(rabint\helpers\user::role($model->id)=='administrator')return;
-                                            
+
                                             $url = \yii\helpers\Url::to(['/user/default/login-as', 'uid' => $model->id]);
                                             return Html::a('<i class="fas fa-sign-in-alt"></i>', $url, [
-                                                        'title' => Yii::t('rabint', 'ورود به سیستم با این کاربر'), 'target' => '_BLANK']);
+                                                'title' => Yii::t('rabint', 'ورود به سیستم با این کاربر'), 'target' => '_BLANK']);
                                         },
                                         'access' => function ($url, $model) {
                                             $url = \yii\helpers\Url::to(['/admin-access/set-user-access', 'username' => $model->username]);
                                             return Html::a('<span class="glyphicon glyphicon-lock"></span>', $url, [
-                                                        'title' => Yii::t('rabint', 'تنظیم دسترسی ها'), 'target' => '_BLANK']);
+                                                'title' => Yii::t('rabint', 'تنظیم دسترسی ها'), 'target' => '_BLANK']);
                                         },
                                         'delete' => function ($url, $model) {
-                                            if(!Yii::$app->user->can('manageَUsers') )return false;
+                                            if (!Yii::$app->user->can('manageَUsers')) return false;
                                             $url = \yii\helpers\Url::to(['admin/delete', 'id' => $model->id]);
-                                            if(rabint\helpers\user::role($model->id)=='administrator')
+                                            if (rabint\helpers\user::role($model->id) == 'administrator')
                                                 return '';
                                             return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
-                                                        'title' => Yii::t('rabint', 'حذف کاربر '),
-                                                    'data'=>[
-                                                        'method' => 'post',
-                                                        'params'=>[
-                                                            'id' => $model->id,
-                                                        ],
-                                                    ]
+                                                'title' => Yii::t('rabint', 'حذف کاربر '),
+                                                'data' => [
+                                                    'method' => 'post',
+                                                    'params' => [
+                                                        'id' => $model->id,
+                                                    ],
+                                                ]
 
                                             ]);
                                         },
                                         'permission' => function ($url, $model) {
-                                            if(!Yii::$app->user->can('manageَUsers') )return false;
+                                            if (!Yii::$app->user->can('manageَUsers')) return false;
                                             $url = \yii\helpers\Url::to(['admin/update-permissions', 'id' => $model->id]);
-                                            if(rabint\helpers\user::role($model->id)=='administrator')
+                                            if (rabint\helpers\user::role($model->id) == 'administrator')
                                                 return '';
                                             return Html::a('<span class="fa fa-archive"></span>', $url, [
-                                                        'title' => Yii::t('rabint', 'مشاهده دسترسی ها'),
-                                                    ]
+                                                    'title' => Yii::t('rabint', 'مشاهده دسترسی ها'),
+                                                ]
 
                                             );
                                         },

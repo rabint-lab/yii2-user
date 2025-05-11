@@ -3,7 +3,6 @@
 namespace rabint\user\models;
 
 use common\models\base\ActiveRecord;
-use http\Exception\InvalidArgumentException;
 use rabint\helpers\str;
 use rabint\notify\models\Notification;
 use rabint\user\models\query\UserQuery;
@@ -35,6 +34,7 @@ use yii\web\IdentityInterface;
  * @property string $displayName
  * @property string $login_ip
  * @property string $rate
+ * @property string $level
  * @property string $socket_setting
  * @property string $socket_latest_status
  *
@@ -128,6 +128,17 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public static function levels()
+    {
+        return [
+            0 => ['title' => \Yii::t('rabint', 'نا مشخص'), 'class' => 'level-unknown'],
+            1 => ['title' => \Yii::t('rabint', 'نرمال'), 'class' => 'level-normal'],
+            2 => ['title' => \Yii::t('rabint', 'برنزی'), 'class' => 'level-bronze'],
+            3 => ['title' => \Yii::t('rabint', 'نقره ای'), 'class' => 'level-silver'],
+            4 => ['title' => \Yii::t('rabint', 'طلایی'), 'class' => 'level-golden'],
+        ];
+    }
+
     /**
      * @return array
      */
@@ -136,9 +147,10 @@ class User extends ActiveRecord implements IdentityInterface
         return ArrayHelper::merge(
             parent::scenarios(),
             [
-                'oauth_create' => ['oauth_client', 'oauth_client_user_id', 'email', 'username', '!status'],
-                'adminEdit' => ['username', 'email', 'password', 'status', 'roles'],
+                'oauth_create' => ['oauth_client', 'oauth_client_user_id', 'email', 'username', '!status', '!level'],
+                'adminEdit' => ['username', 'email', 'password', 'status', 'roles', 'level'],
                 'changeStatus' => ['status'],
+                'changeLevel' => ['level'],
                 'changeUsername' => ['username'],
                 'user-profile' => ['email'],
             ]
@@ -166,6 +178,7 @@ class User extends ActiveRecord implements IdentityInterface
             ['email', 'filter', 'filter' => 'trim'],
             ['email', 'email'],
             ['mobile', 'integer'],
+            ['level', 'integer', 'on' => ['changeLevel', 'adminEdit']],
             [
                 'email', 'unique',
                 'targetClass' => '\rabint\user\models\User',
@@ -174,6 +187,7 @@ class User extends ActiveRecord implements IdentityInterface
                     $query->andWhere(['not', ['id' => Yii::$app->user->getId()]]);
                 },
             ],
+            ['level', 'default', 'value' => 1],
             ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
             //                ['is_official', 'default', 'value' => self::IS_OFFICIAL_NO],
             ['status', 'in', 'range' => array_keys(self::statuses())],
@@ -198,16 +212,16 @@ class User extends ActiveRecord implements IdentityInterface
                 $query->andWhere(['not', ['id' => Yii::$app->user->getId()]]);
             }
         ];
-        if(\rabint\user\Module::getConfig('enableCaptcha')){
-            switch(\rabint\user\Module::getConfig('enableCaptcha')){
-                    case 'reCaptcha3':
+        if (\rabint\user\Module::getConfig('enableCaptcha')) {
+            switch (\rabint\user\Module::getConfig('enableCaptcha')) {
+                case 'reCaptcha3':
 
-                        $return[] = [['reCaptcha'], \kekaadrenalin\recaptcha3\ReCaptchaValidator::className(), 'acceptance_score' => 0];
+                    $return[] = [['reCaptcha'], \kekaadrenalin\recaptcha3\ReCaptchaValidator::className(), 'acceptance_score' => 0];
                     break;
-                    default:
-                        echo '';
+                default:
+                    echo '';
                     break;
-                }
+            }
         }
         /**
          * password policies
@@ -241,6 +255,7 @@ class User extends ActiveRecord implements IdentityInterface
             'created_at' => Yii::t('rabint', 'Created at'),
             'updated_at' => Yii::t('rabint', 'Updated at'),
             'logged_at' => Yii::t('rabint', 'Last login'),
+            'level' => Yii::t('rabint', 'سطح'),
             //            'is_official' => Yii::t('rabint', 'کاربر رسمی'),
         ];
     }
@@ -253,7 +268,7 @@ class User extends ActiveRecord implements IdentityInterface
         static $checkUserProfile = true;
 
         $return = $this->hasOne(UserProfile::className(), ['user_id' => 'id']);
-        if($checkUserProfile && empty($return->one())){
+        if ($checkUserProfile && empty($return->one())) {
             $userProfile = new UserProfile;
             $userProfile->user_id = $this->id;
             $userProfile->nickname = $this->username;
@@ -415,20 +430,20 @@ class User extends ActiveRecord implements IdentityInterface
         //                'created_at' => $this->created_at
         //            ]
         //        ]));
-        $profile = UserProfile::findOne(['user_id'=>$this->getId()]);
+        $profile = UserProfile::findOne(['user_id' => $this->getId()]);
         $isNewProfile = false;
-        if($profile==null){
+        if ($profile == null) {
             $isNewProfile = true;
             $profile = new UserProfile();
         }
         $profile->locale = Yii::$app->language;
         $profile->load($profileData, '');
-        if($this->userProfile==null){
-           $this->link('userProfile', $profile);
+        if ($this->userProfile == null) {
+            $this->link('userProfile', $profile);
         }
         $this->trigger(self::EVENT_AFTER_SIGNUP);
         // Default role
-        if($isNewProfile){
+        if ($isNewProfile) {
             $auth = Yii::$app->authManager;
             $auth->assign($auth->getRole(User::ROLE_USER), $this->getId());
         }
@@ -453,7 +468,7 @@ class User extends ActiveRecord implements IdentityInterface
         }
         $user->password = $password;
         $user->email = $email;
-        $user->mobile = ($mobile?str::CellphoneSanitise($mobile, "+98") : null );
+        $user->mobile = ($mobile ? str::CellphoneSanitise($mobile, "+98") : null);
         if ($isUserActiveted == true) {
             $user->status = self::STATUS_ACTIVE;
         } else {

@@ -91,7 +91,7 @@ class Module extends \yii\base\Module
                     //'url' => ['/user/default/profile'],
                     'url' => ['/user/default/change-password'],
                     'visible' => !Yii::$app->user->isGuest,
-                    'icon' => '<i class="fas fa-password"></i>',
+                    'icon' => '<i class="fas fa-key"></i>',
                 ],
                 [
                     'label' => \Yii::t('app', 'ویرایش اطلاعات کاربری'),

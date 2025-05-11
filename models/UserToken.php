@@ -37,7 +37,7 @@ class UserToken extends ActiveRecord
     const MEDIA_SMS = 'sms';
     const MEDIA_EMAIL = 'email';
 
-    public static $smsTokenLen = 5;
+    public static $smsTokenLen = 6;
     public static $smsExpireTime = 120;
     public static $emailExpireTime = Time::SECONDS_IN_A_DAY;
 
@@ -143,10 +143,12 @@ class UserToken extends ActiveRecord
      * @param int|null $duration
      * @return bool|UserToken
      */
-    public static function userRecentlyGetToken($user_id, $type)
+    public static function userRecentlyGetToken($user_id, $type, $expireTime = null)
     {
+        $expireTime = empty($expireTime) ? self::$smsExpireTime : $expireTime;
+
         $token = UserToken::find()
-            ->andWhere(['>', 'created_at', time() - 120])
+            ->andWhere(['>', 'created_at', time() - $expireTime])
             ->byType($type)
             ->byUserId($user_id)
             ->one();
@@ -240,9 +242,10 @@ class UserToken extends ActiveRecord
 //        }
 //    }
 
-    public static function sendSmsToken($user, $type = null)
+    public static function sendSmsToken($user, $type = null, $expireTime = null)
     {
         $type = empty($type) ? self::TYPE_ACTIVATION : $type;
+        $expireTime = empty($expireTime) ? self::$smsExpireTime : $expireTime;
         /**
          * check user not has active token
          */
@@ -250,7 +253,7 @@ class UserToken extends ActiveRecord
             return false;
         }
 
-        $token = UserToken::create($user->id, $type, self::$smsExpireTime);
+        $token = UserToken::create($user->id, $type, $expireTime);
         if (empty($token)) {
             return false;
         }
